@@ -1,0 +1,42 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+psycopg://nexora:nexora@db:5432/nexora
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:8080
+      - LLM_PROVIDER=heuristic
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=nexora
+      - POSTGRES_PASSWORD=nexora
+      - POSTGRES_DB=nexora
+    ports:
+      - "5432:5432"
+    volumes:
+      - nexora_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexora"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  nexora_postgres_data:

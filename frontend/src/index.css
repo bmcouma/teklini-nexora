@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+
+  --color-graphite: #14151a;
+  --color-graphite-2: #1b1c23;
+  --color-graphite-3: #23242d;
+  --color-cyan: #00d9ff;
+  --color-silver: #c9cdd3;
+  --color-orange: #ff6b35;
+  --color-border: #2c2e38;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+  }
+
+  body {
+    @apply bg-graphite text-silver antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-heading);
+    @apply text-white tracking-tight;
+  }
+
+  ::selection {
+    background: rgba(0, 217, 255, 0.25);
+  }
+}
+
+@layer utilities {
+  .card {
+    @apply rounded-lg border border-border bg-graphite-2;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+  }
+
+  .input {
+    @apply rounded-md border border-border bg-graphite-3 px-3.5 py-2.5 text-sm text-white placeholder:text-silver/30 outline-none transition-colors focus:border-cyan/50;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 999px;
+  }
+}
