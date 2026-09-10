@@ -144,6 +144,14 @@ curl -X POST http://localhost:8000/api/incidents \
   -d '{"use_demo_data": true}'
 ```
 
+### Screenshots
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+![Investigation View](docs/screenshots/investigation_view.png)
+
+*Additional views: [New Incident Submission](docs/screenshots/new_incident.png).*
+
 ## Example Investigation
 
 **Incident:** Application returns HTTP 502 after deployment.
