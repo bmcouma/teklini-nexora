@@ -249,6 +249,10 @@ Copy [.env.example](.env.example) to `.env`. The example contains no credentials
 
 Read [SECURITY.md](SECURITY.md) for secret handling, prompt-injection boundaries, API-key limitations, and tool safety. The project is licensed under [MIT](LICENSE).
 
+## Support the Work
+
+If Nexora is useful to you, you can support continued experimentation and maintenance through [Buy Me a Coffee](https://buymeacoffee.com/bravinouma).
+
 ## Portfolio Status
 
 Nexora is suitable for public GitHub portfolio publication after reviewing local/generated files and rotating any credential previously exposed outside the repository. It is not production-ready, and this repository does not claim that it is.
