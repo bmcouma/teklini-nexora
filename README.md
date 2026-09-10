@@ -2,6 +2,8 @@
 
 **Multi-Agent Intelligence for IT Operations**
 
+Built by Bravin Ouma as part of the Teklini Technologies engineering portfolio.
+
 [![Python](https://img.shields.io/badge/Python-%3E%3D3.11-3776AB?logo=python&logoColor=white)](pyproject.toml)
 [![FastAPI](https://img.shields.io/badge/FastAPI-API-009688?logo=fastapi&logoColor=white)](src/nexora/api)
 [![React](https://img.shields.io/badge/React-dashboard-61DAFB?logo=react&logoColor=111111)](frontend)
@@ -12,6 +14,27 @@
 Nexora is an evidence-grounded IT incident investigation platform that combines deterministic diagnostics, Google ADK orchestration, optional Gemini reasoning, post-reasoning validation, and human approval for high-risk recommendations.
 
 It is a portfolio engineering project, not an autonomous administrator, production monitoring platform, or replacement for DevOps/SRE teams.
+
+## Project Status
+
+- **Portfolio-ready engineering project** – Designed for architecture inspection, local demonstration, and technical evaluation.
+- **Deterministic local demo available** – Fully functional offline investigation path requiring no external API keys or cloud dependencies.
+- **Optional Google ADK + Gemini reasoning** – Modular multi-agent reasoning layer powered by Google ADK and Gemini models.
+- **Evidence-grounded post-reasoning validation** – Independent verification checking model claims against collected evidence.
+- **Human approval boundary** – Remediation workflow stops at recommendations; high-risk actions require human sign-off.
+- **No infrastructure mutation** – All diagnostic tools are strictly read-only and bounded.
+- **Live Gemini execution not successfully verified** – Provider execution has not been verified in this environment; deterministic mode is the supported baseline.
+
+## Engineering Highlights
+
+- **Evidence-grounded reasoning** – Diagnostic facts and structured observations are established before reasoning begins.
+- **Google ADK agent orchestration** – Multi-agent specialist hierarchy coordinated via Google ADK (`LlmAgent` and `InMemoryRunner`).
+- **Deterministic fallback** – Rule-based analytical engine automatically activates if Gemini is disabled, timed out, or unavailable.
+- **Post-reasoning validation** – Dedicated evidence reviewer challenges unsupported claims, invalid citations, or contradictions.
+- **Explicit uncertainty and NEEDS_MORE_EVIDENCE** – Emits explicit uncertainty states rather than hallucinating root causes when evidence is thin.
+- **Prompt-injection-aware incident handling** – Untrusted incident payloads and logs are sanitized and isolated from reasoning prompts.
+- **Read-only diagnostic boundaries** – Safe, bounded diagnostic inspection tools without unrestricted execution capabilities.
+- **Human approval for high-risk recommendations** – Risk-tiered action plans that enforce human governance on impactful changes.
 
 ## Overview
 
@@ -252,7 +275,3 @@ Read [SECURITY.md](SECURITY.md) for secret handling, prompt-injection boundaries
 ## Support the Work
 
 If Nexora is useful to you, you can support continued experimentation and maintenance through [Buy Me a Coffee](https://buymeacoffee.com/bravinouma).
-
-## Portfolio Status
-
-Nexora is suitable for public GitHub portfolio publication after reviewing local/generated files and rotating any credential previously exposed outside the repository. It is not production-ready, and this repository does not claim that it is.
