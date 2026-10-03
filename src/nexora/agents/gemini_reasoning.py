@@ -70,20 +70,6 @@ class GeminiReasoningAgent(BaseAgent):
         if not self._settings.google_api_key:
             raise LLMUnavailableError("GOOGLE_API_KEY is not configured; using deterministic reasoning.")
 
-        evidence_json = json.dumps(
-            [
-                {
-                    "evidence_id": item.evidence_id,
-                    "source": item.source.value,
-                    "agent": item.agent,
-                    "tool": item.tool,
-                    "summary": item.summary,
-                    "detail": item.detail,
-                }
-                for item in evidence
-            ],
-            ensure_ascii=True,
-        )
         instruction = self._build_prompt(state, evidence)
 
         specialist_agents = [

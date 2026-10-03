@@ -11,36 +11,34 @@ Built by Bravin Ouma as part of the Teklini Technologies engineering portfolio.
 [![Google ADK](https://img.shields.io/badge/Google%20ADK-optional-4285F4?logo=google&logoColor=white)](ARCHITECTURE.md#adk-and-gemini)
 [![License](https://img.shields.io/badge/license-MIT-2ea44f)](LICENSE)
 
-Nexora is an evidence-grounded IT incident investigation platform that combines deterministic diagnostics, Google ADK orchestration, optional Gemini reasoning, post-reasoning validation, and human approval for high-risk recommendations.
+Nexora investigates IT incidents by collecting structured diagnostic evidence and turning it into reviewable findings and recommendations. The default workflow is deterministic. An optional Google ADK and Gemini layer can interpret the evidence, and a separate reviewer checks the resulting claims.
 
-It is a portfolio engineering project, not an autonomous administrator, production monitoring platform, or replacement for DevOps/SRE teams.
+Nexora is a portfolio project for local demonstration and technical evaluation. It does not monitor production systems, administer infrastructure, or replace an operations team.
 
 ## Project Status
 
-- **Portfolio-ready engineering project** – Designed for architecture inspection, local demonstration, and technical evaluation.
-- **Deterministic local demo available** – Fully functional offline investigation path requiring no external API keys or cloud dependencies.
-- **Optional Google ADK + Gemini reasoning** – Modular multi-agent reasoning layer powered by Google ADK and Gemini models.
-- **Evidence-grounded post-reasoning validation** – Independent verification checking model claims against collected evidence.
-- **Human approval boundary** – Remediation workflow stops at recommendations; high-risk actions require human sign-off.
-- **No infrastructure mutation** – All diagnostic tools are strictly read-only and bounded.
-- **Live Gemini execution not successfully verified** – Provider execution has not been verified in this environment; deterministic mode is the supported baseline.
+- **Local demo** – The deterministic investigation path runs without cloud services or API credentials.
+- **Optional Gemini reasoning** – Google ADK can coordinate specialist agents to interpret collected evidence.
+- **Evidence review** – A separate validation step checks model claims against the supplied evidence.
+- **Human approval** – High-risk recommendations require approval; Nexora does not apply changes to infrastructure.
+- **Live Gemini status** – Provider execution has not been verified here. The deterministic path is the tested baseline.
 
 ## Engineering Highlights
 
-- **Evidence-grounded reasoning** – Diagnostic facts and structured observations are established before reasoning begins.
-- **Google ADK agent orchestration** – Multi-agent specialist hierarchy coordinated via Google ADK (`LlmAgent` and `InMemoryRunner`).
-- **Deterministic fallback** – Rule-based analytical engine automatically activates if Gemini is disabled, timed out, or unavailable.
-- **Post-reasoning validation** – Dedicated evidence reviewer challenges unsupported claims, invalid citations, or contradictions.
-- **Explicit uncertainty and NEEDS_MORE_EVIDENCE** – Emits explicit uncertainty states rather than hallucinating root causes when evidence is thin.
-- **Prompt-injection-aware incident handling** – Untrusted incident payloads and logs are sanitized and isolated from reasoning prompts.
-- **Read-only diagnostic boundaries** – Safe, bounded diagnostic inspection tools without unrestricted execution capabilities.
-- **Human approval for high-risk recommendations** – Risk-tiered action plans that enforce human governance on impactful changes.
+- **Facts before interpretation** – Deterministic tools collect observations before any model reasoning begins.
+- **Specialist analysis** – Google ADK coordinates network, systems, application, database, and security agents in Gemini mode.
+- **Deterministic fallback** – If Gemini is disabled or unavailable, Nexora keeps the rule-based conclusion.
+- **Evidence checks** – A reviewer flags unsupported conclusions, invalid citations, and contradictions.
+- **Clear uncertainty** – When the evidence is insufficient, the report says `NEEDS_MORE_EVIDENCE` instead of asserting a cause.
+- **Untrusted input handling** – Incident text and logs are sanitized and treated as data, not instructions.
+- **Read-only tools** – Diagnostics are bounded and cannot run arbitrary commands or change infrastructure.
+- **Approval workflow** – Recommendations carry risk levels, with human approval required for high-risk actions.
 
 ## Overview
 
-IT incidents require engineers to correlate logs, symptoms, application behavior, network signals, configuration clues, and service context before proposing a fix. Nexora structures that investigation into explicit stages so the path from observation to recommendation can be inspected and tested.
+Investigating an incident means connecting signals from logs, applications, hosts, networks, and configuration. Nexora makes those steps visible: tools collect observations, agents analyze them, and the report links conclusions to evidence.
 
-The default path is deterministic and reproducible. Gemini mode is an opt-in reasoning layer that receives supplied incident data and structured evidence; it does not receive infrastructure credentials or unrestricted execution tools.
+The default workflow is deterministic. Gemini is optional and receives only the incident data and evidence provided to the investigation; it has no infrastructure credentials or unrestricted tools.
 
 ## Core Architecture
 
@@ -73,7 +71,7 @@ Nexora separates facts from interpretation:
 | **Conclusion** | A diagnosis tied to reviewed evidence, or `NEEDS_MORE_EVIDENCE`. |
 | **Recommendation** | A proposed remediation action with a risk level and approval state. |
 
-This boundary matters in IT operations. A language model can help compare signals and explain a likely cause, but it should not invent server state, logs, metrics, command output, or tool execution. Deterministic tools establish what was observed; reasoning interprets those observations.
+The distinction matters: diagnostic tools establish what was observed, while a model can help interpret those observations. Model output is checked against the evidence and is not treated as a source of server state, logs, metrics, or command results.
 
 ## Agent Architecture
 
@@ -104,24 +102,15 @@ Gemini mode is enabled with `LLM_PROVIDER=gemini`, a locally configured `GOOGLE_
 - The post-reasoning reviewer checks whether cited evidence has recognizable support for the proposed claim.
 - Malformed output, unavailable providers, and timeouts record a provider failure and retain deterministic reasoning.
 
-Live Gemini execution has not been successfully verified in the current environment. The deterministic path is the supported demo and test path.
+Gemini execution has not been verified in this environment. Use deterministic mode for the supported demo and test workflow.
 
 ## Safety Model
 
 ```text
-OBSERVE
-   |
-   v
-RECOMMEND
-   |
-   v
-APPROVE
-   |
-   v
-EXECUTE
+OBSERVE -> RECOMMEND -> APPROVE
 ```
 
-The current implementation stops at approval state. It does not execute infrastructure changes. High-risk recommendations require an approval record before the incident can leave `awaiting_approval`, but no target-system mutation exists in this version.
+Nexora records recommendations and approval state; execution is outside the application. A high-risk recommendation must be approved before the incident can leave `awaiting_approval`, but Nexora does not apply it to a target system.
 
 Diagnostic tools are read-only, bounded, and do not provide unrestricted shell access. Submitted logs are redacted before analysis, and incident content is treated as untrusted data in Gemini prompts.
 
@@ -134,7 +123,7 @@ Clone -> Install -> Copy .env.example to .env -> Run backend -> Run frontend
       -> Run demo investigation -> Inspect evidence -> Review conclusion
 ```
 
-The fixed demo represents a synthetic Django application returning HTTP 502 because Gunicorn failed to start due to a configuration/module problem. It is clearly marked as demo data and does not represent access to a real production system.
+The demo uses synthetic data for a Django application returning HTTP 502 after Gunicorn fails to start because of a configuration or module problem. It does not connect to or describe a real production system.
 
 Start the API and dashboard using [SETUP.md](SETUP.md), then choose **New Incident** and **Run demo investigation**. The API equivalent is:
 
@@ -156,15 +145,15 @@ curl -X POST http://localhost:8000/api/incidents \
 
 **Incident:** Application returns HTTP 502 after deployment.
 
-**Evidence:** Synthetic log-analysis records identify an upstream connection failure and an application service startup failure.
+**Evidence:** Synthetic log records show an upstream connection failure and an application service startup failure.
 
-**Hypothesis:** The upstream service may be unavailable because its process failed during startup.
+**Hypothesis:** The upstream service is unavailable because its process failed during startup.
 
 **Conclusion:** The upstream application service failed to start or crashed, causing requests to fail.
 
-**Confidence:** High in the deterministic demo path, based on the matched evidence records; confidence labels are qualitative, not calibrated probabilities.
+**Confidence:** High, based on the matching demo evidence. Confidence labels are qualitative, not calibrated probabilities.
 
-**Recommendation:** Inspect startup logs and verify configuration. Any high-risk recommendation would enter `awaiting_approval`; Nexora does not execute it.
+**Recommendation:** Inspect startup logs and verify configuration. A high-risk recommendation enters `awaiting_approval`; Nexora does not execute it.
 
 ## Features
 
@@ -206,7 +195,7 @@ docs/           QA, architecture, setup, and portfolio documentation
 
 ## Quick Start
 
-For the complete Windows/Linux setup, demo mode, authenticated mode, Gemini mode, and test commands, see [SETUP.md](SETUP.md).
+For Windows and Linux instructions, including demo, authenticated, Gemini, and test workflows, see [SETUP.md](SETUP.md).
 
 ```bash
 python3 -m venv .venv
@@ -228,7 +217,7 @@ The default configuration is deterministic heuristic mode. Gemini requires a loc
 
 ## Testing
 
-The standard backend suite is isolated from local `.env` provider settings and never contacts Gemini:
+The standard backend suite is isolated from local `.env` provider settings and does not contact Gemini:
 
 ```bash
 python -m pytest
@@ -238,6 +227,7 @@ python -m pytest -m "not live_gemini"
 Current verified results:
 
 - Backend: **50 passed, 2 warnings**
+- Backend lint: **passed**
 - Frontend tests: **2 passed**
 - Frontend lint: **passed**
 - Frontend build: **passed**
@@ -274,7 +264,7 @@ Copy [.env.example](.env.example) to `.env`. The example contains no credentials
 - Diagnostic coverage is limited to the implemented tools and supplied evidence. Nexora is not a production observability platform.
 - The heuristic classifier is keyword-driven and has known evaluation limitations.
 - SQLite is suitable for local development, not concurrent production workloads or migration management.
-- Docker, PostgreSQL, and Cloud Run configurations exist, but were not fully exercised in this portfolio pass.
+- Docker, PostgreSQL, and Cloud Run configurations exist, but have not been fully tested here.
 
 ## Security and License
 
